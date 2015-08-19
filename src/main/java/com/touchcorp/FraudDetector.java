@@ -23,7 +23,7 @@ public final class FraudDetector {
 
     /**
      * Utility method for analysing a list of credit card transactions.
-     *
+     * <p>
      * This method will find within a list of transactions of the csv format;
      * "hash,date,amount" eg. '10d7ce2f43e35fa57d1bbf8b1e2, 2014-04-29T13:15:54, 10.00'
      * those credit cards whose total across all transactions for a given date exceed the specified threshold
@@ -54,12 +54,16 @@ public final class FraudDetector {
                 // Turn string of transaction log to object model
                 .map(Transaction::parse)
                 // Find all transactions for supplied date
-                .filter(transaction -> transaction.getDay() == transactionDate)
+                .filter(transaction -> {
+                    return transaction.getDay() == transactionDate;
+                })
                 // Group transactions by hash and sum transaction totals
                 .collect(groupingBy(Transaction::getHash,
                         reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)))
                 // Find entries where daily total is above the threshold
-                .entrySet().stream().filter(e -> e.getValue().compareTo(threshold) > 0)
+                .entrySet().stream().filter(e -> {
+                    return e.getValue().compareTo(threshold) > 0;
+                })
                 // Return a list of credit card hash values from the transaction
                 .map(Entry::getKey).collect(toList());
     }
