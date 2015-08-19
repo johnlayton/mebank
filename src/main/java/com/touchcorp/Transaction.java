@@ -22,14 +22,18 @@ public final class Transaction
   public static Transaction parse( final String input )
   {
     final String[] elements = input.split( "," );
+    if ( 3 != elements.length )
+    {
+      throw new InvalidFormat( "Invalid transaction details " + input );
+    }
     final String hash = elements[ 0 ].trim();
     if ( hash.isEmpty() )
     {
-      throw new InvalidFormat( "Missing credit card hash" );
+      throw new InvalidFormat( "Missing credit card hash " + input );
     }
     if ( !hash.matches( "[0-9a-z]+" ) )
     {
-      throw new InvalidFormat( "Invalid credit card hash" );
+      throw new InvalidFormat( "Invalid credit card hash " + input );
     }
     final long day = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse( elements[ 1 ].trim() ).getLong( ChronoField.EPOCH_DAY );
     final BigDecimal amount = new BigDecimal( elements[2].trim() );

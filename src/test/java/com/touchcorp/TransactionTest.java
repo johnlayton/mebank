@@ -35,4 +35,16 @@ public class TransactionTest
   {
     Transaction.parse( ", 2014-04-29T13:15:54 , 10.00" );
   }
+
+  @Test( expected = InvalidFormat.class )
+  public void shouldRejectWhenMissingAmount()
+  {
+    Transaction.parse( "10d7ce2f43e35fa57d1bbf8b1e2, 2014-04-29T13:15:54," );
+  }
+
+  @Test( expected = InvalidFormat.class )
+  public void shouldRejectWhenTransactionInvalid()
+  {
+    Transaction.parse( "10d7ce2f43e35fa57d1bbf8b1e2, 2014-04-29T13:15:54" );
+  }
 }
