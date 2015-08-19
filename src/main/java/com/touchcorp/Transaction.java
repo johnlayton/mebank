@@ -37,7 +37,7 @@ public final class Transaction {
      * @param input the string transaction
      * @return the constructed Transaction
      */
-    public static Transaction parse(final String input) {
+    static Transaction parse(final String input) {
         if (null == input) {
             throw new IllegalArgumentException("Input cannot be null");
         }
@@ -57,15 +57,15 @@ public final class Transaction {
         return new Transaction(hash, date, amount);
     }
 
-    public String getHash() {
+    String getHash() {
         return hash;
     }
 
-    public long getDay() {
+    long getDay() {
         return date.getLong(ChronoField.EPOCH_DAY);
     }
 
-    public BigDecimal getAmount() {
+    BigDecimal getAmount() {
         return amount;
     }
 }
