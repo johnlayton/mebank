@@ -23,6 +23,14 @@ public final class Transaction
   {
     final String[] elements = input.split( "," );
     final String hash = elements[ 0 ].trim();
+    if ( hash.isEmpty() )
+    {
+      throw new InvalidFormat( "Missing credit card hash" );
+    }
+    if ( !hash.matches( "[0-9a-z]+" ) )
+    {
+      throw new InvalidFormat( "Invalid credit card hash" );
+    }
     final long day = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse( elements[ 1 ].trim() ).getLong( ChronoField.EPOCH_DAY );
     final BigDecimal amount = new BigDecimal( elements[2].trim() );
     return new Transaction( hash, day, amount );
