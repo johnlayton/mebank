@@ -10,9 +10,9 @@ public final class Transaction
   private final long day;
   private BigDecimal amount;
 
-  public Transaction( final String hash,
-                      final long day,
-                      final BigDecimal amount )
+  private Transaction( final String hash,
+                       final long day,
+                       final BigDecimal amount )
   {
     this.hash = hash;
     this.day = day;
@@ -22,9 +22,9 @@ public final class Transaction
   public static Transaction parse( final String input )
   {
     final String[] elements = input.split( "," );
-    final String hash = elements[ 0 ];
-    final long day = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse( elements[ 1 ] ).getLong( ChronoField.EPOCH_DAY );
-    final BigDecimal amount = new BigDecimal( elements[2] );
+    final String hash = elements[ 0 ].trim();
+    final long day = DateTimeFormatter.ISO_LOCAL_DATE_TIME.parse( elements[ 1 ].trim() ).getLong( ChronoField.EPOCH_DAY );
+    final BigDecimal amount = new BigDecimal( elements[2].trim() );
     return new Transaction( hash, day, amount );
   }
 
