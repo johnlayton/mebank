@@ -10,7 +10,7 @@ javac -source 1.8 -target 1.8 \
      src/main/java/com/mebank/Transactions.java \
      src/main/java/com/mebank/Tally.java \
      src/main/java/com/mebank/InvalidFormatException.java \
-     src/main/java/com/mebank/UnexpectedTransactionException.java
+     src/main/java/com/mebank/DuplicateTransactionException.java
 
 mkdir -p ./build/classes/java/test
 javac -cp ./build/classes/java/main:./lib/junit-4.12.jar:./lib/hamcrest-core-1.3.jar -source 1.8 -target 1.8 \
