@@ -1,4 +1,4 @@
-package com.touchcorp;
+package com.mebank;
 
 /**
  * Exception representing invalid state for the transaction.
