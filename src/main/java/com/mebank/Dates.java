@@ -13,7 +13,7 @@ import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static java.time.temporal.ChronoField.YEAR;
 
 /**
- *
+ * Utility class with method to parse custom date format.
  */
 final class Dates {
 

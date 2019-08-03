@@ -11,17 +11,19 @@ import java.util.Scanner;
 import java.util.stream.Stream;
 
 /**
- *
+ * Main application which takes the URI for the transaction file.
  */
 public final class Application {
 
-    /**
-     * Private constructor for main class.
-     */
     private Application() {
     }
 
-    public void run(final Path input) {
+    /**
+     * Run the application supplying the path to the transaction csv file.
+     *
+     * @param input the path to the transaction csv file.
+     */
+    private void run(final Path input) {
 
         try {
             Stream<String> transactions = Files.lines(input).skip(1);
@@ -30,15 +32,12 @@ public final class Application {
 
             System.out.print("accountId: ");
             String accountId = scanner.nextLine();
-            //            String accountId = "ACC334455";
 
             System.out.print("     from: ");
             LocalDateTime from = Dates.parse(scanner.nextLine());
-            //            LocalDateTime from = Dates.parse("20/10/2018 12:00:00");
 
             System.out.print("       to: ");
             LocalDateTime to = Dates.parse(scanner.nextLine());
-            //            LocalDateTime to = Dates.parse("20/10/2018 19:00:00");
 
             Tally tally = Transactions.tally(transactions, accountId, from, to);
 
@@ -50,6 +49,12 @@ public final class Application {
         }
     }
 
+    /**
+     * Main entry to the application.
+     *
+     * @param args supplied command line arguments, the first and only
+     *             used argument is the path to the transactions csv file
+     */
     public static void main(final String[] args) {
         new Application().run(Paths.get(URI.create(args[0])));
     }

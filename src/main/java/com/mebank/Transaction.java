@@ -69,8 +69,8 @@ public final class Transaction {
         });
     }
 
-    static Predicate<Transaction> reversalInSequence(final Long start,
-                                                     final Long end) {
+    static Predicate<Transaction> relatedInSequence(final Long start,
+                                                    final Long end) {
         return transaction -> transaction.action.accept(new ActionVisitor<Boolean>() {
             @Override
             public Boolean visit(final Payment payment) {
@@ -91,22 +91,18 @@ public final class Transaction {
     private final BigDecimal amount;
     private final Action action;
 
-    Transaction(final String transactionId,
-                final String fromAccountId,
-                final String toAccountId,
-                final LocalDateTime createdAt,
-                final BigDecimal amount,
-                final Action action) {
+    private Transaction(final String transactionId,
+                        final String fromAccountId,
+                        final String toAccountId,
+                        final LocalDateTime createdAt,
+                        final BigDecimal amount,
+                        final Action action) {
         this.transactionId = transactionId;
         this.fromAccountId = fromAccountId;
         this.toAccountId = toAccountId;
         this.createdAt = createdAt;
         this.amount = amount;
         this.action = action;
-    }
-
-    Long getSequence() {
-        return Long.parseLong(transactionId.replaceAll(IS_NOT_DIGIT, ""));
     }
 
     static Transaction parse(final String input) {
@@ -118,6 +114,7 @@ public final class Transaction {
         final String toAccountId = elements.get(POSITION_TO_ACCOUNT);
         final LocalDateTime createdAt = Dates.parse(elements.get(POSITION_CREATED_AT));
         final BigDecimal amount = new BigDecimal(elements.get(POSITION_AMOUNT));
+
         return new Transaction(transactionId, fromAccountId, toAccountId, createdAt, amount, action);
     }
 
@@ -134,14 +131,38 @@ public final class Transaction {
         }
     }
 
-    BigDecimal getTransfer(final String accountId) {
+    /**
+     * @return the long value of the transaction id by replacing the non digit prefix
+     */
+    Long getSequence() {
+        return Long.parseLong(transactionId.replaceAll(IS_NOT_DIGIT, ""));
+    }
+
+    /**
+     * Update balance attempts to return a new big decimal representing the supplied balance
+     * and this transactions amount either;
+     * added if this is a payment transaction and the from account matched the supplied account id or
+     * if this is a reversal transaction and the to account matched the supplied account id
+     * or;
+     * subtracted if this is a payment transaction and the to account matched the supplied account id or
+     * if this is a reversal transaction and the from account matched the supplied account id.
+     * <p>
+     * This operation is performed by visiting the action stored on the transaction.  The action being either
+     * payment or reversal.
+     *
+     * @param accountId the account id from which to determine if to add or subtract
+     * @param balance   the starting balance on which to tally
+     * @return a new big decimal representing the result of either adding or subtracting this transaction amount
+     */
+    BigDecimal updateBalance(final String accountId,
+                             final BigDecimal balance) {
         return action.accept(new ActionVisitor<BigDecimal>() {
             @Override
             public BigDecimal visit(final Payment payment) {
                 if (accountId.equals(toAccountId)) {
-                    return amount;
+                    return balance.add(amount);
                 } else if (accountId.equals(fromAccountId)) {
-                    return amount.multiply(new BigDecimal(-1));
+                    return balance.subtract(amount);
                 } else {
                     throw new UnexpectedTransactionException("Transaction not for account " + accountId);
                 }
@@ -150,9 +171,9 @@ public final class Transaction {
             @Override
             public BigDecimal visit(final Reversal reversal) {
                 if (accountId.equals(toAccountId)) {
-                    return amount.multiply(new BigDecimal(-1));
+                    return balance.subtract(amount);
                 } else if (accountId.equals(fromAccountId)) {
-                    return amount;
+                    return balance.add(amount);
                 } else {
                     throw new UnexpectedTransactionException("Transaction not for account " + accountId);
                 }
@@ -160,22 +181,32 @@ public final class Transaction {
         });
     }
 
-    public Long getCount() {
+    /**
+     * Update the tally count
+     * increment by one if this is a payment transaction, or;
+     * decrement by one if this is a reversal transaction.
+     *
+     * @param count the current transaction count
+     * @return the new transaction count
+     */
+    Long updateCount(final Long count) {
         return action.accept(new ActionVisitor<Long>() {
             @Override
             public Long visit(final Payment payment) {
-                return 1L;
+                return count + 1;
             }
 
             @Override
             public Long visit(final Reversal reversal) {
-                return -1L;
+                return count - 1;
             }
         });
     }
 
     /**
-     * @param <T>
+     * Action visitor which will visit any action and return a object of type <T>.
+     *
+     * @param <T> result of visiting the action
      */
     interface ActionVisitor<T> {
         T visit(Payment payment);

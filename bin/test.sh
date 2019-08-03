@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
-BIN="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
 mkdir -p ./build/classes/java/main
-javac -cp ./lib/junit-4.12.jar:./lib/hamcrest-core-1.3.jar -source 1.8 -target 1.8 \
+javac -source 1.8 -target 1.8 \
   -d ./build/classes/java/main -sourcepath \
      src/main/java \
      src/main/java/com/mebank/Application.java \
@@ -21,6 +19,7 @@ javac -cp ./build/classes/java/main:./lib/junit-4.12.jar:./lib/hamcrest-core-1.3
      src/test/java/com/mebank/ApplicationTest.java \
      src/test/java/com/mebank/DatesTest.java \
      src/test/java/com/mebank/TransactionTest.java \
+     src/test/java/com/mebank/TransactionsTest.java \
      src/test/java/com/mebank/TallyTest.java
 
 java -cp ./build/classes/java/main:./build/classes/java/test:./src/test/resources:./lib/junit-4.12.jar:./lib/hamcrest-core-1.3.jar \
@@ -30,6 +29,3 @@ java -cp ./build/classes/java/main:./build/classes/java/test:./src/test/resource
   com.mebank.TransactionTest \
   com.mebank.TransactionsTest \
   com.mebank.TallyTest \
-
-java -cp ./build/classes/java/main \
-  com.mebank.Application file:///${BIN}/../src/test/resources/sample.csv

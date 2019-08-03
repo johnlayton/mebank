@@ -3,7 +3,6 @@ package com.mebank;
 import org.junit.Test;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -38,27 +37,27 @@ public class TransactionTest {
     @Test
     public void shouldCalculateThePaymentTransfer() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, PAYMENT");
-        assertEquals(new BigDecimal("-5.00"), transaction.getTransfer("ACC998877"));
-        assertEquals(new BigDecimal("5.00"), transaction.getTransfer("ACC778899"));
+        assertEquals(new BigDecimal("-5.00"), transaction.updateBalance("ACC998877", new BigDecimal("0.00")));
+        assertEquals(new BigDecimal("5.00"), transaction.updateBalance("ACC778899", new BigDecimal("0.00")));
     }
 
     @Test
     public void shouldCalculateTheReversalTransfer() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, REVERSAL, TX10002");
-        assertEquals(new BigDecimal("5.00"), transaction.getTransfer("ACC998877"));
-        assertEquals(new BigDecimal("-5.00"), transaction.getTransfer("ACC778899"));
+        assertEquals(new BigDecimal("5.00"), transaction.updateBalance("ACC998877", new BigDecimal("0.00")));
+        assertEquals(new BigDecimal("-5.00"), transaction.updateBalance("ACC778899", new BigDecimal("0.00")));
     }
 
     @Test(expected = UnexpectedTransactionException.class)
     public void shouldHandleWrongAccountOnPaymentTransfer() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, PAYMENT");
-        transaction.getTransfer("ACC998871");
+        transaction.updateBalance("ACC998871", new BigDecimal("0.00"));
     }
 
     @Test(expected = UnexpectedTransactionException.class)
     public void shouldHandleWrongAccountOnReversalTransfer() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, REVERSAL, TX10002");
-        transaction.getTransfer("ACC998871");
+        transaction.updateBalance("ACC998871", new BigDecimal("0.00"));
     }
 
     @Test
@@ -94,14 +93,14 @@ public class TransactionTest {
     @Test
     public void shouldFilterInSequencePaymentTransaction() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, PAYMENT");
-        assertFalse(Transaction.reversalInSequence(100L, 200L).test(transaction));
+        assertFalse(Transaction.relatedInSequence(100L, 200L).test(transaction));
     }
 
     @Test
     public void shouldFilterInSequenceReversalTransaction() {
         Transaction transaction = Transaction.parse("TX10003, ACC998877, ACC778899, 20/10/2018 18:00:00, 5.00, REVERSAL, TX10002");
-        assertTrue(Transaction.reversalInSequence(10000L, 10005L).test(transaction));
-        assertFalse(Transaction.reversalInSequence(10005L, 10006L).test(transaction));
+        assertTrue(Transaction.relatedInSequence(10000L, 10005L).test(transaction));
+        assertFalse(Transaction.relatedInSequence(10005L, 10006L).test(transaction));
     }
 
 
